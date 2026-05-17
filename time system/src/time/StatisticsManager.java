@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * 学习统计管理器：计算并展示每日/每周学习时长（仅统计专注记录）
- */
 public class StatisticsManager {
 
     public void showDailyStats(List<FocusRecord> records) {

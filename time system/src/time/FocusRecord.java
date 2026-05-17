@@ -1,10 +1,7 @@
 package time;
 import java.time.LocalDateTime;
 
-/**
- * 专注记录模型
- * 表示一次专注或休息会话
- */
+
 public class FocusRecord {
     private final LocalDateTime startTime;
     private final long durationSeconds;

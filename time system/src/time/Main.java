@@ -10,17 +10,14 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        // 1. 初始化数据管理器并加载持久化数据
         fileDataManager = FileDataManager.getInstance();
         List<TodoItem> loadedTodos = fileDataManager.loadTodos();
         List<FocusRecord> loadedRecords = fileDataManager.loadRecords();
 
-        // 2. 初始化各模块（成员2、3交付的类）
         todoManager = new TodoManager(loadedTodos);
         pomodoroTimer = new PomodoroTimer(loadedRecords, 25, 5); // 默认专注25分钟，休息5分钟
         statisticsManager = new StatisticsManager();
 
-        // 3. 配置保存回调：当待办或专注记录变化时，由 FileDataManager 触发自定义保存逻辑
         Runnable saveCallback = () -> {
             fileDataManager.saveTodos(todoManager.getItems());
             fileDataManager.saveRecords(pomodoroTimer.getRecords());
@@ -30,14 +27,12 @@ public class Main {
         todoManager.setOnDataChanged(() -> fileDataManager.requestSave());
         pomodoroTimer.setOnRecordAdded(record -> fileDataManager.requestSave());
 
-        // 4. 程序退出时自动保存（关闭钩子）
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("正在保存数据...");
             saveCallback.run();
             System.out.println("数据已保存，再见！");
         }));
 
-        // 5. 主菜单循环
         boolean exit = false;
         while (!exit) {
             printStatusBar();
@@ -53,26 +48,24 @@ public class Main {
             }
         }
 
-        // 正常退出时保存
         saveCallback.run();
         System.out.println("程序已退出。");
     }
 
     private static void printStatusBar() {
-        ConsoleUI.clearScreen();                                   // 新增：清屏
+        ConsoleUI.clearScreen();
         System.out.println(ConsoleUI.CYAN + ConsoleUI.BOLD +
-                "===== 个人学习效率小助手 =====" + ConsoleUI.RESET);  // 颜色
+                "===== 个人学习效率小助手 =====" + ConsoleUI.RESET);
         if (pomodoroTimer.isRunning()) {
             int remaining = pomodoroTimer.getRemainingSeconds();
             int total = (pomodoroTimer.getState() == PomodoroTimer.State.FOCUS) ? 25 * 60 : 5 * 60;
-            ConsoleUI.printProgressBar(remaining, total);          // 改为进度条
-            System.out.println();                                  // 换行
+            ConsoleUI.printProgressBar(remaining, total);
+            System.out.println();
         } else {
-            System.out.println(ConsoleUI.GRAY + "【番茄钟空闲】" + ConsoleUI.RESET);  // 灰色
+            System.out.println(ConsoleUI.GRAY + "【番茄钟空闲】" + ConsoleUI.RESET);
         }
-        ConsoleUI.printSeparator();                                // 新增：分隔线
+        ConsoleUI.printSeparator();
     }
-
     private static void printMainMenu() {
         String[] options = {
                 "1. 番茄钟",
@@ -81,7 +74,7 @@ public class Main {
                 "4. 设置",
                 "0. 退出"
         };
-        ConsoleUI.printBoxMenu("个人学习效率小助手", options);   // 替换所有打印
+        ConsoleUI.printBoxMenu("个人学习效率小助手", options);
     }
 
     private static void handlePomodoroMenu() {
@@ -113,18 +106,16 @@ public class Main {
                                 back = true;
                                 break;
                             default:
-                                // 其他输入忽略
                                 break;
                         }
                     }
-                    Thread.sleep(1000); // 每秒刷新
+                    Thread.sleep(1000);
                 } catch (Exception e) {
                     // ignore
                 }
                 continue;
             }
 
-            // 空闲置时显示静态菜单
             System.out.println("\n-- 番茄钟 --");
             System.out.println("1. 开始专注");
             System.out.println("2. 开始休息");
@@ -141,7 +132,7 @@ public class Main {
                 }
                 case "0" -> {
                     if (pomodoroTimer.isRunning()) {
-                        pomodoroTimer.stop(); // 停止并生成记录
+                        pomodoroTimer.stop(); 
                     }
                     back = true;
                 }
@@ -155,11 +146,11 @@ public class Main {
             System.out.println("\n" + ConsoleUI.CYAN + "-- 待办清单 --" + ConsoleUI.RESET);
             List<TodoItem> items = todoManager.getItems();
             if (items.isEmpty()) {
-                ConsoleUI.printInfo("清单为空");  // 蓝色信息提示
+                ConsoleUI.printInfo("清单为空");
             } else {
                 for (int i = 0; i < items.size(); i++) {
                     TodoItem item = items.get(i);
-                    ConsoleUI.printTodoItem(i, item);  // 彩色、自动过期提示
+                    ConsoleUI.printTodoItem(i, item);
                 }
             }
             System.out.println();
